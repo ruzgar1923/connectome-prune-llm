@@ -1,0 +1,68 @@
+{
+  "model_name": "Qwen/Qwen2.5-1.5B",
+  "author": "R\u00fczgar Vatansever",
+  "total_parameters": 1543714304,
+  "pruned_synapses": 431655074,
+  "net_sparsity_pct": 27.96210884886638,
+  "sculpt_time_seconds": 42.43459119999898,
+  "dense_generations": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "The capital of France is Paris. The capital of France is also the capital of the European Union. The capital of France is also the capital of the",
+      "new_tokens": 25,
+      "elapsed_ms": 4265.06729999528,
+      "ms_per_token": 170.6026919998112
+    },
+    {
+      "prompt": "Water boils at a temperature of",
+      "completion": "Water boils at a temperature of 212 \u00b0F or 100 \u00b0C and ice melts at a temperature of 32 \u00b0F",
+      "new_tokens": 25,
+      "elapsed_ms": 4185.872499998368,
+      "ms_per_token": 167.43489999993471
+    },
+    {
+      "prompt": "Artificial intelligence can be defined as",
+      "completion": "Artificial intelligence can be defined as the ability of a computer to perform tasks that would normally require human intelligence, such as visual perception, speech recognition, decision-making",
+      "new_tokens": 25,
+      "elapsed_ms": 4233.975600000122,
+      "ms_per_token": 169.35902400000487
+    },
+    {
+      "prompt": "In physics, Albert Einstein is famous for the theory of",
+      "completion": "In physics, Albert Einstein is famous for the theory of relativity. In mathematics, the theory of relativity is a branch of mathematics that deals with the study of the relationship between",
+      "new_tokens": 25,
+      "elapsed_ms": 4475.58960000606,
+      "ms_per_token": 179.0235840002424
+    }
+  ],
+  "pruned_generations": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "The capital of France is a great city for lovers of the city to experience the best of the French way of life and were part of the first class",
+      "new_tokens": 25,
+      "elapsed_ms": 4241.201600001659,
+      "ms_per_token": 169.64806400006637
+    },
+    {
+      "prompt": "Water boils at a temperature of",
+      "completion": "Water boils at a temperature of 100 degrees Celsius (\u00b0C) and we put a certain number of moles of water in a glass and",
+      "new_tokens": 25,
+      "elapsed_ms": 4058.6524000027566,
+      "ms_per_token": 162.34609600011026
+    },
+    {
+      "prompt": "Artificial intelligence can be defined as",
+      "completion": "Artificial intelligence can be defined as the use of \u201cbroadly accessible and importun- ite processing and the capacity for the machine to reason, dis",
+      "new_tokens": 25,
+      "elapsed_ms": 4027.3317999963183,
+      "ms_per_token": 161.09327199985273
+    },
+    {
+      "prompt": "In physics, Albert Einstein is famous for the theory of",
+      "completion": "In physics, Albert Einstein is famous for the theory of relativity. He is also a great popularizer of the theory of relativity. The general theory of relativity, which",
+      "new_tokens": 25,
+      "elapsed_ms": 4398.2881999982055,
+      "ms_per_token": 175.93152799992822
+    }
+  ]
+}

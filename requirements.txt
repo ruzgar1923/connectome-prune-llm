@@ -1,0 +1,6 @@
+numpy>=1.20.0
+matplotlib>=3.5.0
+scipy>=1.8.0
+streamlit>=1.20.0
+pypdf>=3.0.0
+reportlab>=3.6.0

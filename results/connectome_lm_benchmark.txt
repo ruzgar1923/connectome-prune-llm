@@ -1,0 +1,7 @@
+CONNECTOME-LM BENCHMARK RESULTS
+Tokens Generated: 127
+Connectome-LM Operations (SynOps): 117571
+Dense-LM Operations (FLOPs): 70318080
+Compute Reduction Factor: 598.09x
+Energy Reduction Factor: 3056.91x
+Mean Spiking Sparsity: 96.62% sleeping
