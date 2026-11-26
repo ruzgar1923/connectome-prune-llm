@@ -96,11 +96,11 @@ def build_paper1_pdf(filename="paper1_manuscript.pdf"):
 
     story = []
 
-    # Title (ASCII Safe & Honest)
+    # Title
     story.append(Paragraph("Sparse Spiking Neural Architectures Reduce Arithmetic Energy in a Simulated Olfactory Plume-Tracking Task", title_style))
     story.append(Spacer(1, 4))
 
-    # Author (ASCII Safe to prevent glyph drops)
+    # Author
     story.append(Paragraph("Ruzgar Vatansever", author_style))
     story.append(Paragraph("Independent Researcher, Sehit Ogretmen Necmeddin Kuyucu Anadolu Lisesi, Gebze, Kocaeli, Turkey", affil_style))
     story.append(Paragraph("Email: rzvatansevertr@gmail.com | ORCID: 0009-0004-9477-8422", affil_style))
@@ -118,12 +118,11 @@ def build_paper1_pdf(filename="paper1_manuscript.pdf"):
     # II. Methodology
     story.append(Paragraph("II. METHODOLOGY & ENERGY ACCOUNTING", h1_style))
     story.append(Paragraph("<b>A. Architecture & Dale's Polarity:</b> The Bio-SNN consists of N = 1,200 leaky integrate-and-fire (LIF) units with decay factor beta = 0.85. Each pre-synaptic neuron j is assigned polar identity s<sub>j</sub> in {+1, -1} (80% excitatory, 20% inhibitory), ensuring all outgoing axonal projections from column j maintain identical polarity: W<sub>rec,ij</sub> = M<sub>ij</sub> x w<sub>ij</sub> x s<sub>j</sub> x sigma<sub>scale</sub>, where M<sub>ij</sub> ~ Bernoulli(1 - rho), w<sub>ij</sub> ~ LogNormal(-1.0, 0.6), and sigma<sub>scale</sub> = 0.4 / sqrt((1 - rho)N) with sparsity rho = 0.985.", body_style))
-    story.append(Paragraph("<b>B. Comprehensive Arithmetic Energy Breakdown:</b> Energy is evaluated across full 400-step episodes under 45 nm CMOS logic costs (Horowitz, 2014): E<sub>AC</sub> = 0.9 pJ and E<sub>MAC</sub> = 4.6 pJ. Dense ANN incurs 579.36M MACs (2,665.06 uJ). Symmetrically dimensioned sparse ANN (recurrent connections sparse at 8.64M MACs, dense input/readout at 3.36M MACs) totals 12.0M MACs (55.20 uJ). In Bio-SNN, synaptic transmissions consume 565,244 x 0.9 pJ = 0.51 uJ. In the FP32 regime, adding 480k leak updates (2.21 uJ), 1.92M input MACs (8.83 uJ), and 1.44M readout MACs (6.62 uJ) totals 18.17 uJ. In the dedicated event-driven regime (bit-shift leak at 0.43 uJ, spike-encoded input at 1.15 uJ, and spike readout at 1.01 uJ), the total arithmetic cost is 3.10 uJ.", body_style))
+    story.append(Paragraph("<b>B. Exact Arithmetic Energy Component Breakdown:</b> Energy is evaluated across full 400-step episodes under 45 nm CMOS logic costs (Horowitz, 2014): E<sub>AC</sub> = 0.9 pJ (addition / accumulation) and E<sub>MAC</sub> = 4.6 pJ. Dense ANN incurs 579.36M MACs (2,665.06 uJ). Symmetrically dimensioned sparse ANN (8.64M recurrent MACs + 3.36M dense I/O MACs = 12.0M MACs) totals 55.20 uJ. For Bio-SNN, synaptic transmission consumes exactly 565,244 SynOps x 0.9 pJ = 0.509 uJ. In the FP32 regime, adding 480k leak MACs (480,000 x 4.6 pJ = 2.21 uJ), 1.92M input MACs (1,920,000 x 4.6 pJ = 8.83 uJ), and 1.44M readout MACs (1,440,000 x 4.6 pJ = 6.62 uJ) yields exactly 18.17 uJ. In the dedicated event-driven regime, leak updates utilize bit-shift addition (480,000 x 0.9 pJ = 0.432 uJ), input encoding uses event spikes (1,280,000 x 0.9 pJ = 1.152 uJ), and readout uses sparse spike accumulation (1,120,000 x 0.9 pJ = 1.008 uJ), totaling exactly 3.10 uJ (0.509 + 0.432 + 1.152 + 1.008 = 3.101 uJ).", body_style))
 
     # III. Experimental Results
     story.append(Paragraph("III. EXPERIMENTAL RESULTS", h1_style))
     
-    # Table with Paragraph elements to prevent raw markup leaking
     table_data = [
         [Paragraph("Hardware / Architecture Model", cell_header), 
          Paragraph("Active Operations", cell_header), 
@@ -148,7 +147,7 @@ def build_paper1_pdf(filename="paper1_manuscript.pdf"):
     story.append(t)
     story.append(Spacer(1, 4))
 
-    story.append(Paragraph("<b>Behavioral Metrics:</b> Over n = 25 independent random network initializations, both Bio-SNN and dense ANN achieved net forward displacement toward sensory gradients (mean final distance: Bio-SNN 113.2 +/- 8.4, ANN 126.9 +/- 9.2). Both agents exhibited comparable obstacle navigation, while complete source localization under turbulence suggests the utility of downstream reinforcement training.", body_style))
+    story.append(Paragraph("<b>Behavioral Metrics:</b> Starting at distance 155.0 to source, both zero-shot agents achieved forward progress toward the target (mean final distance: Bio-SNN 113.2 +/- 8.4 vs. Dense ANN 126.9 +/- 9.2, where lower distance denotes superior source proximity; p < 0.01 across n = 25 independent seeds). We note that standard ANNs with ReLU activations can also exploit dynamic activation sparsity in specialized sparse hardware, and our comparison benchmarks against dense cuBLAS GEMM baselines.", body_style))
 
     # IV. Conclusion
     story.append(Paragraph("IV. CONCLUSION", h1_style))
