@@ -21,7 +21,7 @@ def build_paper1_pdf(filename="paper1_manuscript.pdf"):
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
         fontSize=13,
-        leading=17,
+        leading=16.5,
         alignment=1,
         textColor=colors.HexColor('#0F172A')
     )
@@ -67,71 +67,100 @@ def build_paper1_pdf(filename="paper1_manuscript.pdf"):
         spaceAfter=3
     )
 
+    cell_style = ParagraphStyle(
+        'CellStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=7,
+        leading=9,
+        textColor=colors.HexColor('#1E293B')
+    )
+
+    cell_bold = ParagraphStyle(
+        'CellBold',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=7,
+        leading=9,
+        textColor=colors.HexColor('#0F172A')
+    )
+
+    cell_header = ParagraphStyle(
+        'CellHeader',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=7,
+        leading=9,
+        textColor=colors.white
+    )
+
     story = []
 
-    # Title
-    story.append(Paragraph("Connectome-Inspired Sparse Neural Architectures Reduce Energy Costs in a Simulated Olfactory Plume-Tracking Task", title_style))
+    # Title (ASCII Safe & Honest)
+    story.append(Paragraph("Sparse Spiking Neural Architectures Reduce Arithmetic Energy in a Simulated Olfactory Plume-Tracking Task", title_style))
     story.append(Spacer(1, 4))
 
-    # Author
-    story.append(Paragraph("Rüzgar Vatansever", author_style))
-    story.append(Paragraph("Independent Researcher, Şehit Öğretmen Necmeddin Kuyucu Anadolu Lisesi, Gebze, Kocaeli, Turkey", affil_style))
+    # Author (ASCII Safe to prevent glyph drops)
+    story.append(Paragraph("Ruzgar Vatansever", author_style))
+    story.append(Paragraph("Independent Researcher, Sehit Ogretmen Necmeddin Kuyucu Anadolu Lisesi, Gebze, Kocaeli, Turkey", affil_style))
     story.append(Paragraph("Email: rzvatansevertr@gmail.com | ORCID: 0009-0004-9477-8422", affil_style))
     story.append(Spacer(1, 5))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CBD5E1'), spaceAfter=5))
 
     # Abstract
-    story.append(Paragraph("<b>Abstract</b>—Autonomous robotic edge hardware operates under stringent sub-watt power budgets. While dense artificial neural networks (ANNs) execute continuous floating-point matrix multiplications, biological micro-fliers (such as <i>Drosophila</i>) navigate complex sensory environments using event-driven spikes and structural sparsity. In this work, we evaluate a bio-inspired Spiking Neural Network (Bio-SNN) incorporating biological connectomic motifs: 98.5% structural sparsity, log-normal weights, and pre-synaptic Dale's polarity enforcement across an average firing rate of 6.5% (93.5% temporal sparsity). Across 400 simulation steps in a turbulent plume arena (n = 25 independent seeds), we quantify energy consumption against dense and symmetrically dimensioned sparse (98.5%) ANNs under standardized 45 nm CMOS arithmetic costs (Horowitz, 2014). SNN synaptic transmissions account for 0.51 &mu;J; accounting for membrane leak updates and input/output projections yields a total neuromorphic budget of <b>3.10 &mu;J to 18.17 &mu;J</b>, providing a <b>3.0&times; to 17.8&times; energy reduction</b> over the sparse ANN control (55.20 &mu;J) and a <b>147&times; to 860&times; reduction</b> over the dense ANN baseline (2,665.06 &mu;J). These findings suggest that biological energy advantages arise from the structural coupling of static network sparsity with temporal event sparsity.", body_style))
+    story.append(Paragraph("<b>Abstract</b>—Autonomous robotic edge hardware operates under stringent sub-watt power budgets. While dense artificial neural networks (ANNs) execute continuous floating-point matrix multiplications, biological micro-fliers (such as <i>Drosophila</i>) navigate complex sensory environments using event-driven spikes and structural sparsity. In this work, we evaluate a bio-inspired Spiking Neural Network (Bio-SNN) incorporating biological connectomic motifs: 98.5% structural sparsity, log-normal weights, and pre-synaptic Dale's polarity enforcement across an average firing rate of 6.5% (93.5% temporal sparsity). Across 400 simulation steps in a turbulent plume arena (n = 25 independent seeds), we quantify arithmetic energy consumption against dense and symmetrically dimensioned sparse (98.5%) ANNs under standardized 45 nm CMOS logic costs (Horowitz, 2014). SNN synaptic transmissions account for 0.51 uJ; fully accounting for membrane leak updates and input/output projections yields a total arithmetic budget of <b>3.10 uJ to 18.17 uJ</b>, providing a <b>3.0x to 17.8x energy reduction</b> over the sparse ANN control (55.20 uJ) and a <b>147x to 860x reduction</b> over the dense ANN baseline (2,665.06 uJ). We emphasize that these figures reflect arithmetic operation energy; memory transport (SRAM/DRAM) represents an external hardware-dependent constraint.", body_style))
     story.append(Spacer(1, 4))
 
     # I. Introduction
     story.append(Paragraph("I. INTRODUCTION", h1_style))
-    story.append(Paragraph("Edge robotics requires navigation under strict energy constraints. While dense ANNs compute continuous multiply-accumulate (MAC) operations regardless of input saliency, biological circuits in the adult fruit fly (Dorkenwald et al., Nature 2024; Schlegel et al., Nature 2024) rely on sparse asynchronous event spikes. We isolate the energetic impact of biological structural invariants in a simulated 400-step olfactory plume tracking task.", body_style))
+    story.append(Paragraph("Edge robotics requires navigation under strict energy constraints. While dense ANNs compute continuous multiply-accumulate (MAC) operations regardless of input saliency, biological circuits in the adult fruit fly (Dorkenwald et al., Nature 2024; Schlegel et al., Nature 2024) rely on sparse asynchronous event spikes. We isolate the arithmetic energetic impact of biological structural invariants in a simulated 400-step olfactory plume tracking task.", body_style))
 
     # II. Methodology
     story.append(Paragraph("II. METHODOLOGY & ENERGY ACCOUNTING", h1_style))
-    story.append(Paragraph("<b>A. Architecture & Dale's Polarity:</b> The Bio-SNN consists of N = 1,200 leaky integrate-and-fire (LIF) units with decay &beta; = 0.85. Each pre-synaptic neuron j is assigned polar identity s<sub>j</sub> &isin; {+1, -1} (80% excitatory, 20% inhibitory), ensuring all outgoing axonal projections from column j maintain identical polarity: W<sub>rec,ij</sub> = M<sub>ij</sub> &times; w<sub>ij</sub> &times; s<sub>j</sub> &times; &sigma;<sub>scale</sub>, where M<sub>ij</sub> &sim; Bernoulli(1 - &rho;), w<sub>ij</sub> &sim; LogNormal(-1.0, 0.6), and &sigma;<sub>scale</sub> = 0.4 / &radic;((1 - &rho;)N) with sparsity &rho; = 0.985.", body_style))
-    story.append(Paragraph("<b>B. Comprehensive Energy Accounting:</b> Energy is evaluated across full 400-step episodes under 45 nm CMOS logic costs (Horowitz, 2014): E<sub>AC</sub> = 0.9 pJ and E<sub>MAC</sub> = 4.6 pJ. Dense ANN incurs 579.36M MACs (2,665.06 &mu;J). Symmetrically dimensioned sparse ANN (recurrent connections sparse at 8.64M MACs, dense input/readout at 3.36M MACs) totals 12.0M MACs (55.20 &mu;J). Bio-SNN synaptic transmissions consume 565,244 &times; 0.9 pJ = 0.51 &mu;J. We evaluate two implementation regimes: (1) Standard FP32 regime (480k leak updates, 1.92M input MACs, 1.44M readout MACs: 18.17 &mu;J); and (2) Dedicated neuromorphic hardware (bit-shift decay and spike-encoded input/readout: 3.10 &mu;J).", body_style))
+    story.append(Paragraph("<b>A. Architecture & Dale's Polarity:</b> The Bio-SNN consists of N = 1,200 leaky integrate-and-fire (LIF) units with decay factor beta = 0.85. Each pre-synaptic neuron j is assigned polar identity s<sub>j</sub> in {+1, -1} (80% excitatory, 20% inhibitory), ensuring all outgoing axonal projections from column j maintain identical polarity: W<sub>rec,ij</sub> = M<sub>ij</sub> x w<sub>ij</sub> x s<sub>j</sub> x sigma<sub>scale</sub>, where M<sub>ij</sub> ~ Bernoulli(1 - rho), w<sub>ij</sub> ~ LogNormal(-1.0, 0.6), and sigma<sub>scale</sub> = 0.4 / sqrt((1 - rho)N) with sparsity rho = 0.985.", body_style))
+    story.append(Paragraph("<b>B. Comprehensive Arithmetic Energy Breakdown:</b> Energy is evaluated across full 400-step episodes under 45 nm CMOS logic costs (Horowitz, 2014): E<sub>AC</sub> = 0.9 pJ and E<sub>MAC</sub> = 4.6 pJ. Dense ANN incurs 579.36M MACs (2,665.06 uJ). Symmetrically dimensioned sparse ANN (recurrent connections sparse at 8.64M MACs, dense input/readout at 3.36M MACs) totals 12.0M MACs (55.20 uJ). In Bio-SNN, synaptic transmissions consume 565,244 x 0.9 pJ = 0.51 uJ. In the FP32 regime, adding 480k leak updates (2.21 uJ), 1.92M input MACs (8.83 uJ), and 1.44M readout MACs (6.62 uJ) totals 18.17 uJ. In the dedicated event-driven regime (bit-shift leak at 0.43 uJ, spike-encoded input at 1.15 uJ, and spike readout at 1.01 uJ), the total arithmetic cost is 3.10 uJ.", body_style))
 
     # III. Experimental Results
     story.append(Paragraph("III. EXPERIMENTAL RESULTS", h1_style))
     
+    # Table with Paragraph elements to prevent raw markup leaking
     table_data = [
-        ["Hardware / Architecture Model", "Active Operations", "Total Energy (400 steps)", "vs. Sparse ANN (55.2 &mu;J)", "vs. Dense ANN (2.67 mJ)"],
-        ["Dense ANN Baseline", "579.36M MACs", "2,665.06 &mu;J (2.67 mJ)", "---", "Baseline (1.0&times;)"],
-        ["Sparse ANN Control (%98.5)", "12.00M MACs", "55.20 &mu;J", "Baseline (1.0&times;)", "48.3&times; Savings"],
-        ["<b>Bio-SNN FP32 (Full Leak+In/Out)</b>", "<b>SynOps + FP32 Ops</b>", "<b>18.17 &mu;J</b>", "<b>3.0&times; Savings</b>", "<b>147&times; Savings</b>"],
-        ["<b>Bio-SNN Neuromorphic (Loihi Bit-Shift)</b>", "<b>SynOps + Bit-Shift</b>", "<b>3.10 &mu;J</b>", "<b>17.8&times; Savings</b>", "<b>860&times; Savings</b>"]
+        [Paragraph("Hardware / Architecture Model", cell_header), 
+         Paragraph("Active Operations", cell_header), 
+         Paragraph("Arithmetic Energy (400 steps)", cell_header), 
+         Paragraph("vs. Sparse ANN (55.2 uJ)", cell_header), 
+         Paragraph("vs. Dense ANN (2.67 mJ)", cell_header)],
+        [Paragraph("Dense ANN Baseline", cell_style), Paragraph("579.36M MACs", cell_style), Paragraph("2,665.06 uJ", cell_style), Paragraph("---", cell_style), Paragraph("Baseline (1.0x)", cell_style)],
+        [Paragraph("Sparse ANN Control (98.5%)", cell_style), Paragraph("12.00M MACs", cell_style), Paragraph("55.20 uJ", cell_style), Paragraph("Baseline (1.0x)", cell_style), Paragraph("48.3x Savings", cell_style)],
+        [Paragraph("<b>Bio-SNN FP32 (Full Leak+In/Out)</b>", cell_bold), Paragraph("SynOps + FP32 Ops", cell_style), Paragraph("<b>18.17 uJ</b>", cell_bold), Paragraph("<b>3.0x Savings</b>", cell_bold), Paragraph("<b>147x Savings</b>", cell_bold)],
+        [Paragraph("<b>Bio-SNN Event-Driven (Bit-Shift)</b>", cell_bold), Paragraph("SynOps + Bit-Shift", cell_style), Paragraph("<b>3.10 uJ</b>", cell_bold), Paragraph("<b>17.8x Savings</b>", cell_bold), Paragraph("<b>860x Savings</b>", cell_bold)]
     ]
 
-    t = Table(table_data, colWidths=[140, 95, 95, 95, 95])
+    t = Table(table_data, colWidths=[140, 95, 100, 95, 90])
     t.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0F172A')),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 7),
         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F8FAFC')]),
-        ('TOPPADDING', (0,0), (-1,-1), 2),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t)
     story.append(Spacer(1, 4))
 
-    story.append(Paragraph("<b>Behavioral Metrics:</b> Over n = 25 independent random network initializations, both Bio-SNN and dense ANN achieved net forward displacement toward sensory gradients (mean final distance: Bio-SNN 113.2 &plusmn; 8.4, ANN 126.9 &plusmn; 9.2). Both agents exhibited comparable obstacle navigation, while complete source localization under turbulence suggests the utility of downstream reinforcement training.", body_style))
+    story.append(Paragraph("<b>Behavioral Metrics:</b> Over n = 25 independent random network initializations, both Bio-SNN and dense ANN achieved net forward displacement toward sensory gradients (mean final distance: Bio-SNN 113.2 +/- 8.4, ANN 126.9 +/- 9.2). Both agents exhibited comparable obstacle navigation, while complete source localization under turbulence suggests the utility of downstream reinforcement training.", body_style))
 
     # IV. Conclusion
     story.append(Paragraph("IV. CONCLUSION", h1_style))
-    story.append(Paragraph("Evaluating across both general FP32 and dedicated neuromorphic regimes confirms that connectome-inspired spiking networks achieve solid 3.0&times; to 17.8&times; energy advantages over matched sparse ANNs and orders of magnitude over dense baselines.", body_style))
+    story.append(Paragraph("Evaluating across both general FP32 and dedicated neuromorphic arithmetic regimes confirms that connectome-inspired spiking networks achieve solid 3.0x to 17.8x arithmetic energy advantages over matched sparse ANNs and orders of magnitude over dense baselines.", body_style))
     story.append(Spacer(1, 4))
 
     # References
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CBD5E1'), spaceAfter=4))
-    story.append(Paragraph("<b>References:</b> [1] S. Dorkenwald et al., Nature 634, 124–138 (2024). [2] P. Schlegel et al., Nature 634, 139–152 (2024). [3] M. Horowitz, IEEE ISSCC, pp. 10–14 (2014). [4] M. Davies et al., IEEE Micro 38, 82–99 (2018).", affil_style))
+    story.append(Paragraph("<b>References:</b> [1] S. Dorkenwald et al., Nature 634, 124-138 (2024). [2] P. Schlegel et al., Nature 634, 139-152 (2024). [3] M. Horowitz, IEEE ISSCC, pp. 10-14 (2014). [4] M. Davies et al., IEEE Micro 38, 82-99 (2018).", affil_style))
 
     doc.build(story)
-    print(f"[SUCCESS] Paper 1 Final Polish PDF built: {filename}")
+    print(f"[SUCCESS] Paper 1 Master Polish PDF built: {filename}")
 
 if __name__ == "__main__":
     build_paper1_pdf()
