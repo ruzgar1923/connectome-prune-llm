@@ -25,7 +25,9 @@ TEST_PROMPTS = [
 def main():
     parser = argparse.ArgumentParser(description="ConnectomePrune-LLM: Bio-Inspired Model Sparsification")
     parser.add_argument("--model", type=str, default="HuggingFaceTB/SmolLM-135M", help="Hugging Face model ID or path")
-    parser.add_argument("--sparsity", type=float, default=0.25, help="Target model sparsity ratio (e.g. 0.25 for 25%)")
+    parser.add_argument("--sparsity", type=float, default=0.271, help="Target model sparsity ratio (e.g. 0.271 for 27.1%%)")
+    parser.add_argument("--hub_ratio", type=float, default=0.1875, help="Attention hub target sparsity (e.g. 0.1875 for 18.75%%)")
+    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Compute device (cuda / cpu)")
     parser.add_argument("--save", type=str, default="", help="Path to save the pruned model (optional)")
     args = parser.parse_args()
 
