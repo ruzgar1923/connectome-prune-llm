@@ -196,7 +196,8 @@ def main():
     for cfg in configs:
         print(f"\n[Evaluating Configuration]: {cfg['name']} ...")
         t0 = time.perf_counter()
-        model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch.bfloat16, local_files_only=True)
+        dtype = torch.float16 if (torch.cuda.is_available() and not torch.cuda.is_bf16_supported()) else torch.bfloat16
+        model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=dtype, local_files_only=True)
         
         # Collect norms if pruning
         if cfg["attn_sp"] > 0 or cfg["mlp_sp"] > 0:
