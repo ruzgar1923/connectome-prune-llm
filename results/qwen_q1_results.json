@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Dense Baseline (Qwen 1.5B)",
+    "actual_sparsity_pct": 0.0,
+    "ppl_512": 26.42816940446783,
+    "elapsed_seconds": 16.1
+  },
+  {
+    "name": "Standard Wanda (25.0%)",
+    "actual_sparsity_pct": 25.06664378397844,
+    "ppl_512": 27.43748543532162,
+    "elapsed_seconds": 75.4
+  },
+  {
+    "name": "ConnectomePrune (25.0%)",
+    "actual_sparsity_pct": 25.035579264664847,
+    "ppl_512": 28.468797507885512,
+    "elapsed_seconds": 56.1
+  },
+  {
+    "name": "Inverse-Hub Control (25.0%)",
+    "actual_sparsity_pct": 25.089202932760017,
+    "ppl_512": 30.435907358187904,
+    "elapsed_seconds": 45.3
+  },
+  {
+    "name": "ConnectomePrune (40.0%)",
+    "actual_sparsity_pct": 40.09513595477253,
+    "ppl_512": 32.64660034014038,
+    "elapsed_seconds": 55.8
+  }
+]

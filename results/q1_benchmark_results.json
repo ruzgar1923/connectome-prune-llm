@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Dense Baseline",
+    "sparsity_pct": 0.0,
+    "ppl_512": 94.79028085294595,
+    "code_syntax_pct": 50.0,
+    "code_passed": "5/10",
+    "elapsed_seconds": 89.6
+  },
+  {
+    "name": "Standard Wanda (27.1%)",
+    "sparsity_pct": 27.17636114564435,
+    "ppl_512": 100.57146567468622,
+    "code_syntax_pct": 50.0,
+    "code_passed": "5/10",
+    "elapsed_seconds": 124.8
+  },
+  {
+    "name": "ConnectomePrune (27.1%)",
+    "sparsity_pct": 27.098951771341522,
+    "ppl_512": 96.56653195155225,
+    "code_syntax_pct": 50.0,
+    "code_passed": "5/10",
+    "elapsed_seconds": 172.6
+  },
+  {
+    "name": "ConnectomePrune (40.0%)",
+    "sparsity_pct": 40.1136950172227,
+    "ppl_512": 119.0278779521764,
+    "code_syntax_pct": 50.0,
+    "code_passed": "5/10",
+    "elapsed_seconds": 132.7
+  },
+  {
+    "name": "ConnectomePrune (50.0%)",
+    "sparsity_pct": 50.10048099632921,
+    "ppl_512": 210.5398899149594,
+    "code_syntax_pct": 50.0,
+    "code_passed": "5/10",
+    "elapsed_seconds": 127.6
+  },
+  {
+    "name": "Inverse-Hub Control (27.1%)",
+    "sparsity_pct": 27.14316875770174,
+    "ppl_512": 122.68726017154879,
+    "code_syntax_pct": 40.0,
+    "code_passed": "4/10",
+    "elapsed_seconds": 133.3
+  }
+]

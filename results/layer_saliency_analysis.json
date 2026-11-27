@@ -1,0 +1,98 @@
+[
+  {
+    "layer": 0,
+    "attn_mean_saliency": 0.067,
+    "mlp_mean_saliency": 0.0374,
+    "attn_to_mlp_ratio": 1.794
+  },
+  {
+    "layer": 1,
+    "attn_mean_saliency": 0.0932,
+    "mlp_mean_saliency": 0.0437,
+    "attn_to_mlp_ratio": 2.1333
+  },
+  {
+    "layer": 2,
+    "attn_mean_saliency": 0.115,
+    "mlp_mean_saliency": 0.0504,
+    "attn_to_mlp_ratio": 2.2789
+  },
+  {
+    "layer": 3,
+    "attn_mean_saliency": 0.1093,
+    "mlp_mean_saliency": 0.0579,
+    "attn_to_mlp_ratio": 1.8887
+  },
+  {
+    "layer": 4,
+    "attn_mean_saliency": 0.1075,
+    "mlp_mean_saliency": 0.0589,
+    "attn_to_mlp_ratio": 1.8239
+  },
+  {
+    "layer": 5,
+    "attn_mean_saliency": 0.1129,
+    "mlp_mean_saliency": 0.0579,
+    "attn_to_mlp_ratio": 1.9498
+  },
+  {
+    "layer": 6,
+    "attn_mean_saliency": 0.1125,
+    "mlp_mean_saliency": 0.0564,
+    "attn_to_mlp_ratio": 1.9931
+  },
+  {
+    "layer": 7,
+    "attn_mean_saliency": 0.1134,
+    "mlp_mean_saliency": 0.0554,
+    "attn_to_mlp_ratio": 2.047
+  },
+  {
+    "layer": 8,
+    "attn_mean_saliency": 0.1147,
+    "mlp_mean_saliency": 0.0571,
+    "attn_to_mlp_ratio": 2.0066
+  },
+  {
+    "layer": 9,
+    "attn_mean_saliency": 0.1145,
+    "mlp_mean_saliency": 0.0605,
+    "attn_to_mlp_ratio": 1.893
+  },
+  {
+    "layer": 10,
+    "attn_mean_saliency": 0.1163,
+    "mlp_mean_saliency": 0.0659,
+    "attn_to_mlp_ratio": 1.7644
+  },
+  {
+    "layer": 11,
+    "attn_mean_saliency": 0.1234,
+    "mlp_mean_saliency": 0.0706,
+    "attn_to_mlp_ratio": 1.7482
+  },
+  {
+    "layer": 12,
+    "attn_mean_saliency": 0.1194,
+    "mlp_mean_saliency": 0.0754,
+    "attn_to_mlp_ratio": 1.5826
+  },
+  {
+    "layer": 13,
+    "attn_mean_saliency": 0.1281,
+    "mlp_mean_saliency": 0.0807,
+    "attn_to_mlp_ratio": 1.5875
+  },
+  {
+    "layer": 14,
+    "attn_mean_saliency": 0.1255,
+    "mlp_mean_saliency": 0.0895,
+    "attn_to_mlp_ratio": 1.4014
+  },
+  {
+    "layer": 15,
+    "attn_mean_saliency": 0.129,
+    "mlp_mean_saliency": 0.1022,
+    "attn_to_mlp_ratio": 1.263
+  }
+]
