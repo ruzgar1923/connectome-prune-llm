@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Standard OWL (2024)",
+    "actual_sparsity_pct": 27.17,
+    "ppl_512": 105.42,
+    "elapsed_seconds": 37.7
+  },
+  {
+    "name": "OWL + Scaling Only",
+    "actual_sparsity_pct": 27.17,
+    "ppl_512": 111.89,
+    "elapsed_seconds": 37.1
+  },
+  {
+    "name": "OWL + Hub Protection Only",
+    "actual_sparsity_pct": 27.12,
+    "ppl_512": 100.99,
+    "elapsed_seconds": 36.6
+  },
+  {
+    "name": "OWL + Hub + Scaling (Unified)",
+    "actual_sparsity_pct": 27.12,
+    "ppl_512": 104.43,
+    "elapsed_seconds": 36.7
+  },
+  {
+    "name": "ConnectomePrune (Ours: Iso-Sparsity + Scaling)",
+    "actual_sparsity_pct": 27.09,
+    "ppl_512": 104.69,
+    "elapsed_seconds": 36.4
+  }
+]
