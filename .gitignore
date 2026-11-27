@@ -3,3 +3,8 @@ calibrated_qwen_1.5b/
 sculpted_qwen_1.5b/
 pruned_llama_3_2_1b_instruct/
 pruned_sculpted_model/
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/
+*.log

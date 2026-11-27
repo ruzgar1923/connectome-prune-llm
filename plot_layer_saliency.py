@@ -42,7 +42,7 @@ def main():
     ax1.plot(layers, attn_sal, marker="o", markersize=5, color=c_attn, linewidth=2.0, label="Attention Projections ($W_q, W_k, W_v, W_o$)")
     ax1.plot(layers, mlp_sal, marker="s", markersize=5, color=c_mlp, linewidth=2.0, linestyle="--", label="MLP Projections ($W_{gate}, W_{up}, W_{down}$)")
     ax1.fill_between(layers, attn_sal, mlp_sal, color=c_attn, alpha=0.12, label="Excess Attention Saliency Density")
-    ax1.set_ylabel("Mean Saliency ($|W| \cdot \|X\|_2$)", fontsize=9.5, fontweight="bold")
+    ax1.set_ylabel(r"Mean Saliency ($|W| \cdot \|X\|_2$)", fontsize=9.5, fontweight="bold")
     ax1.set_title("(a) Mean Activation-Weighted Saliency Density per Layer (LLaMA-3.2-1B)", fontsize=10.5, fontweight="bold", pad=8)
     ax1.grid(True, linestyle=":", alpha=0.6)
     ax1.legend(loc="upper left", frameon=True, fontsize=8.2, framealpha=0.92)
@@ -60,7 +60,7 @@ def main():
                  arrowprops=dict(facecolor="#0F172A", shrink=0.08, width=1.0, headwidth=5),
                  fontsize=8.0, fontweight="bold", color="#0F172A")
 
-    ax2.set_xlabel("Transformer Layer Index $l \in [0, 15]$", fontsize=9.5, fontweight="bold")
+    ax2.set_xlabel(r"Transformer Layer Index $l \in [0, 15]$", fontsize=9.5, fontweight="bold")
     ax2.set_ylabel(r"Saliency Ratio $\psi_l$", fontsize=9.5, fontweight="bold")
     ax2.set_title(r"(b) Information Density Advantage of Routing Heads ($\psi_l > 1.0\times$ Everywhere)", fontsize=10.5, fontweight="bold", pad=8)
     ax2.set_xticks(layers)

@@ -1,6 +1,10 @@
+torch>=2.0.0
+transformers>=4.35.0
+safetensors>=0.4.0
+accelerate>=0.26.0
 numpy>=1.20.0
-matplotlib>=3.5.0
 scipy>=1.8.0
-streamlit>=1.20.0
-pypdf>=3.0.0
+matplotlib>=3.5.0
 reportlab>=3.6.0
+pypdf>=3.0.0
+streamlit>=1.20.0
