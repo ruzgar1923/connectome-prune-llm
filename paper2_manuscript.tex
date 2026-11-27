@@ -68,20 +68,20 @@ To enable compression on resource-constrained hardware, tensors are carved seque
 \small
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Pruning Method} & \textbf{Sparsity} & \textbf{PPL (WikiText-2)} & \textbf{Code (50)} & \textbf{Reasoning (200)} \\
+\textbf{Pruning Method} & \textbf{Sparsity} & \textbf{PPL (WikiText-2)} & \textbf{Code (50) [95\% CI]} & \textbf{Reasoning (200)} \\
 \midrule
-Dense Baseline (Meta 1B) & 0.00\% & 11.24 $\pm$ 0.02 (ctx 2k: 10.70) & 100\% (50/50) & 100\% (200/200) \\
-Magnitude Pruning & 27.10\% & 184.60 (Collapsed) & 0\% (0/50) & 0\% (Collapsed) \\
-Standard Wanda (2023) & 27.10\% & 12.85 $\pm$ 0.08 & 80\% (40/50) & 95\% (190/200) \\
-Wanda + Scaling Only & 27.10\% & 12.31 $\pm$ 0.07 & 88\% (44/50) & 97\% (194/200) \\
-SparseGPT (2023) & 27.10\% & 12.15 $\pm$ 0.07 & 92\% (46/50) & 98\% (196/200) \\
-SparseGPT + Scaling & 27.10\% & 11.72 $\pm$ 0.06 & 94\% (47/50) & 98.5\% (197/200) \\
-OWL (2024) & 27.10\% & 11.84 $\pm$ 0.06 & 96\% (48/50) & 98.5\% (197/200) \\
-OWL + Scaling & 27.10\% & 11.56 $\pm$ 0.05 & 98\% (49/50) & 99\% (198/200) \\
-Wanda + Hub Only & 27.10\% & 11.92 $\pm$ 0.05 & 96\% (48/50) & 98.5\% (197/200) \\
-\textbf{Inverse-Hub} & 27.07\% & \textbf{66.10 (Severe Drift)} & 42\% (21/50) & 42\% (84/200) \\
+Dense Baseline (Meta 1B) & 0.00\% & 11.24 $\pm$ 0.02 (ctx 2k: 10.70) & 100\% (50/50) [92.9, 100.0] & 100\% (200/200) \\
+Magnitude Pruning & 27.10\% & 184.60 (Collapsed) & 0\% (0/50) [0.0, 7.1] & 0\% (Collapsed) \\
+Standard Wanda (2023) & 27.10\% & 12.85 $\pm$ 0.08 & 80\% (40/50) [67.0, 88.8] & 95\% (190/200) \\
+Wanda + Scaling Only & 27.10\% & 12.31 $\pm$ 0.07 & 88\% (44/50) [76.2, 94.4] & 97\% (194/200) \\
+SparseGPT (2023) \cite{frantar2023sparsegpt} & 27.10\% & 12.15 $\pm$ 0.07 & 92\% (46/50) [81.2, 96.9] & 98\% (196/200) \\
+SparseGPT + Scaling & 27.10\% & 11.72 $\pm$ 0.06 & 94\% (47/50) [83.8, 98.2] & 98.5\% (197/200) \\
+OWL (2024) \cite{yin2024owl} & 27.10\% & 11.84 $\pm$ 0.06 & 96\% (48/50) [86.5, 99.5] & 98.5\% (197/200) \\
+OWL + Scaling & 27.10\% & 11.56 $\pm$ 0.05 & 98\% (49/50) [89.5, 99.9] & 99\% (198/200) \\
+Wanda + Hub Only & 27.10\% & 11.92 $\pm$ 0.05 & 96\% (48/50) [86.5, 99.5] & 98.5\% (197/200) \\
+\textbf{Inverse-Hub} & 27.07\% & \textbf{66.10 (Severe Drift)} & 42\% (21/50) [29.4, 55.8] & 42\% (84/200) \\
 \midrule
-\textbf{ConnectomePrune} & \textbf{27.10\%} & \textbf{11.48 $\pm$ 0.04 (ctx 2k: 10.92)} & \textbf{100\% (50/50)} & \textbf{100\% (200/200)} \\
+\textbf{ConnectomePrune} & \textbf{27.10\%} & \textbf{11.48 $\pm$ 0.04 (ctx 2k: 10.92)} & \textbf{100\% (50/50) [92.9, 100.0]} & \textbf{100\% (200/200)} \\
 \bottomrule
 \end{tabular}
 \end{center}
