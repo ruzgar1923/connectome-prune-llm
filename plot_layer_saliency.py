@@ -45,9 +45,9 @@ def main():
     ax1.set_ylabel(r"Mean Saliency ($|W| \cdot \|X\|_2$)", fontsize=9.5, fontweight="bold")
     ax1.set_title("(a) Mean Activation-Weighted Saliency Density per Layer (LLaMA-3.2-1B)", fontsize=10.5, fontweight="bold", pad=8)
     ax1.grid(True, linestyle=":", alpha=0.6)
-    # Expanded y-limits to prevent legend overlapping data curves at early layers
-    ax1.set_ylim(0.015, 0.170)
-    ax1.legend(loc="upper left", frameon=True, fontsize=8.0, framealpha=0.92, ncol=1)
+    # Position legend in upper right where curves descend to lowest values, eliminating any overlap
+    ax1.set_ylim(0.015, 0.165)
+    ax1.legend(loc="upper right", frameon=True, fontsize=8.0, framealpha=0.92, ncol=1)
 
     # Subplot 2: Relative Ratio
     bars = ax2.bar(layers, ratios, color=c_ratio, width=0.6, alpha=0.85, edgecolor="#042F2E", linewidth=0.8, label=r"$\psi_l = S_{attn} / S_{mlp}$")
