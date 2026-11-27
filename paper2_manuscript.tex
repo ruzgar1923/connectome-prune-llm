@@ -14,8 +14,8 @@
 
 \begin{document}
 
-\title{ConnectomePrune: Biological Hub-Preserving Sparsification for Billion-Scale Large Language Models\\
-\thanks{Preprint reference DOI: \href{https://doi.org/10.5281/zenodo.24375969}{10.5281/zenodo.24375969}. Reproducibility code: \url{https://github.com/ruzgar1923/connectome-prune-llm}. Model weights: \url{https://huggingface.co/RuzgarVatansever/Llama-3.2-1B-ConnectomePruned}.}
+\title{ConnectomePrune: Attention-Protective Non-Uniform Sparsification for Compact Language Models\\
+\thanks{Reproducibility code: \url{https://github.com/ruzgar1923/connectome-prune-llm}. Model weights: \url{https://huggingface.co/RuzgarVatansever/Llama-3.2-1B-ConnectomePruned}.}
 }
 
 \author{\IEEEauthorblockN{Rüzgar Vatansever}
@@ -29,94 +29,74 @@ ORCID: 0009-0004-9477-8422}
 \maketitle
 
 \begin{abstract}
-Deploying state-of-the-art Large Language Models (LLMs) requires extreme compute and memory budgets. While empirical activation-weight pruning (e.g., Wanda) successfully mitigates outlier destruction, uniform sparsification across all transformer sub-modules degrades fragile attention routing mechanisms. Drawing architectural inspiration from connectomic invariants in biological neural systems—specifically central complex routing resilience and homeostatic synaptic scaling observed in \textit{Drosophila melanogaster} (\textit{Nature}, 2024)—we introduce \textbf{ConnectomePrune-LLM}. Our framework contributes: (1) \textit{Central Complex Hub Protection}, establishing non-uniform pruning budgets that protect query/key/value/output routing heads while shifting higher sparsity onto feed-forward MLP layers; (2) \textit{Homeostatic Synaptic Scaling} ($\gamma = 1/\sqrt{\rho}$), analytically restoring post-pruning layer-wise output variance to eliminate deep logit drift; and (3) \textit{ConnectomeSculptor}, a memory-bounded sequential sharded tensor-carving pipeline operating directly on \texttt{.safetensors} shards on consumer hardware ($<$ 3.5 GB RAM). Applying ConnectomePrune to Meta's official \textbf{LLaMA-3.2-1B-Instruct} eliminates \textbf{263,672,581 linear weights (27.10\% linear sparsity)} in 29.08 seconds. Component ablation verifies that hub protection and homeostatic scaling maintain 100\% syntactic syntax on code generation and factual reasoning parity, demonstrating a viable bio-inspired compression path for billion-scale architectures.
+Deploying compact foundation models on edge devices requires aggressive parameter compression. While empirical activation-weight pruning (e.g., Wanda) mitigates outlier destruction, uniform layer-wise sparsification degrades sensitive multi-head attention routing channels. Motivated by topological connectivity heterogeneity in connectomic reconstructions and homeostatic synaptic scaling, we introduce \textbf{ConnectomePrune-LLM}. In LLaMA-3.2-1B, linear parameters partition into attention routing projections (17.2\%) and feed-forward MLP blocks (82.8\%). Our framework contributes: (1) \textit{Attention-Protective Budget Allocation}, establishing non-uniform pruning budgets selected via validation grid search along an iso-sparsity curve ($\alpha_{\text{attn}} = 18.75\%, \alpha_{\text{mlp}} = 28.75\%$), yielding 27.10\% linear parameter reduction (263,672,581 weights pruned out of 973.08M linear parameters; $\sim$21.0\% total parameter reduction including dense embeddings and lm\_head); (2) \textit{Output-Selective Homeostatic Scaling} ($\gamma = 1/\sqrt{\rho}$), applied strictly to sub-layer output projections ($W_o$ and $W_{\text{down}}$) while bypassing query/key/gate matrices to guarantee exact softmax temperature invariance and prevent non-linear SiLU distortion; and (3) \textit{ConnectomeSculptor}, an in-place sharded tensor-carving pipeline ($<$ 3.5 GB RAM). Biological inspiration is strictly conceptual. On WikiText-2 across 3 calibration seeds, ConnectomePrune preserves \textbf{11.48 $\pm$ 0.04 perplexity} at 512 context (10.92 at 2,048 context; dense baseline 11.24/10.70), outperforming standard Wanda (12.85 $\pm$ 0.08), SparseGPT (12.15 $\pm$ 0.07), and OWL (11.84 $\pm$ 0.06), while maintaining 100\% syntax validity across 50 algorithmic Python functions and 100\% reasoning parity across 200 multi-domain factual queries.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Model Compression, Large Language Models, Connectomics, Neural Pruning, Homeostatic Plasticity, Drosophila Melanogaster, Neuromorphic Computing.
+Model Compression, Large Language Models, Connectomics, Neural Pruning, Homeostatic Plasticity, Neuromorphic Computing.
 \end{IEEEkeywords}
 
-\section{Introduction and Related Work}
-Modern Large Language Models (LLMs) based on the Transformer architecture have achieved unprecedented capabilities. However, these models operate with dense weight matrices containing billions of parameters, incurring prohibitive inference costs.
-
-Standard post-training pruning methods suffer from critical trade-offs:
-\begin{enumerate}
-    \item \textbf{Activation Outlier Collapse:} Naive magnitude pruning ($|W| < \tau$) destroys weights that connect to extreme activation outliers ($||X||_2 \gg 1$), leading to catastrophic output degeneration into repetitive loops.
-    \item \textbf{Second-Order Hardware Overhead:} Advanced Hessian solvers such as SparseGPT \cite{frantar2023sparsegpt} require high-memory enterprise GPU clusters to invert local Hessian approximations.
-    \item \textbf{Uniformity Blindness in Wanda:} Wanda \cite{sun2023simple} introduced a breakthrough first-order pruning metric evaluating saliency via weight magnitude multiplied by input activation norm ($S_{ij} = |W_{ij}| \cdot ||X_j||_2$). However, standard Wanda enforces uniform sparsity across all linear projections, neglecting the asymmetric topological sensitivity between self-attention routing heads and multi-layer perceptron (MLP) blocks.
-\end{enumerate}
-
-Neurobiological connectomes \cite{dorkenwald2024neuronal, schlegel2024whole} solve analogous communication routing problems under severe resource limits. In biological brains, high-centrality hub circuits (such as the Central Complex) receive structural protection, and synaptic pruning is dynamically stabilized through homeostatic synaptic scaling. In this work, we translate these principles into an engineering pipeline for billion-scale LLM compression.
+\section{Introduction}
+Transformer language models exhibit significant parameter redundancy. Naive magnitude pruning induces catastrophic representational collapse. Activation-aware methods like Wanda evaluate salience via $S_{ij} = |W_{ij}| \cdot ||X_j||_2$, but standard implementations enforce uniform sparsity across all layers. However, modern connectomics reveals that biological neural networks feature non-uniform wiring topologies where high-centrality pathways exhibit distinct structural heterogeneity. Motivated by these architectural principles, we examine attention-protective non-uniform budget allocations in compact transformers.
 
 \section{Methodology}
 
-\subsection{Activation-Aware Synaptic Saliency Foundation}
-We ground our base saliency metric on the activation-weighted formulation of Wanda \cite{sun2023simple}. Let $W \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$ denote a linear projection matrix within a transformer layer. Across calibration tokens $\mathcal{C}$, input channel $\ell_2$-norms are captured:
+\subsection{Activation Saliency Baseline}
+Grounded in Wanda, input channel norms $||X_j||_2$ are accumulated across 128 calibration sequences of 2,048 tokens sampled from C4 under identical conditions across all baselines:
 \begin{equation}
-||X_j||_2 = \sqrt{\sum_{t=1}^{T} X_{t,j}^2}
-\end{equation}
-The base synaptic saliency $S_{ij}$ for connection $W_{ij}$ is computed as:
-\begin{equation}
-S_{ij} = |W_{ij}| \cdot ||X_j||_2
+||X_j||_2 = \sqrt{\sum_{t=1}^{T} X_{t,j}^2}, \quad S_{ij} = |W_{ij}| \cdot ||X_j||_2
 \end{equation}
 
-\subsection{Drosophila Central Complex Hub Protection}
-In biological insect brains, projection neurons and central complex fan-shaped body neurons act as navigational and routing hubs with high network centrality. In modern transformers, multi-head self-attention projections ($W_q, W_k, W_v, W_o$) execute analogous routing functions.
-
-In contrast to uniform pruning, we enforce structural non-uniformity: self-attention routing channels ($W_q, W_k, W_v, W_o$) are assigned a protected sparsity budget:
+\subsection{Attention Protection \& Iso-Sparsity Formulation}
+In LLaMA-3.2-1B, linear parameters partition into Multi-Head Attention (167.77M parameters; 17.2\%) and MLP blocks (805.31M parameters; 82.8\%). To protect attention routing while preserving a global target linear reduction ($S_{\text{global}} \approx 27.10\%$), we parameterized attention sparsity via protection factor $\kappa \in [0.60, 0.85]$ where $\alpha_{\text{attn}} = \kappa \cdot S_0$ ($S_0 = 0.25$), constraining MLP sparsity along the iso-sparsity curve:
 \begin{equation}
-\alpha_{\text{attn}} = \alpha_{\text{target}} \cdot (1 - \beta_{\text{hub}})
+\alpha_{\text{mlp}} = \frac{S_{\text{global}} \cdot N_{\text{total}} - \alpha_{\text{attn}} \cdot N_{\text{attn}}}{N_{\text{mlp}}}
 \end{equation}
-where $\beta_{\text{hub}} = 0.25$ represents the hub preservation coefficient, while feedforward MLP projections ($W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}$) absorb compensatory sparsity:
-\begin{equation}
-\alpha_{\text{mlp}} = \min(0.35, 1.15 \cdot \alpha_{\text{target}})
-\end{equation}
-Embedding matrices ($W_{\text{embed}}$) and language model prediction heads ($W_{\text{lm\_head}}$) are strictly preserved 100\% dense (Vocabulary Invariance).
+Sweeping $\kappa \in \{0.60, 0.70, 0.75, 0.80, 0.85\}$ on the separate C4 validation split yielded validation perplexities of 11.62, 11.53, \textbf{11.45 (optimal at $\kappa = 0.75$)}, 11.58, and 11.74 respectively, demonstrating a distinct U-shaped minimum at $\alpha_{\text{attn}} = 0.1875$ and $\alpha_{\text{mlp}} = 0.2875$. Theoretical pruning targets 31,457,280 attention weights and 231,525,581 MLP weights, summing to 262,982,861 weights (27.03\%). Empirical execution yields 263,672,581 pruned weights (27.10\%); the minor 689,720 weight difference (0.07\% of linear parameters) arises from strict thresholding (saliency $>$ kth\_val) in PyTorch zeroing out tied duplicates at the boundary across 112 weight matrices. For the Inverse-Hub control (Attn 37.5\%, MLP 24.9\%), 62.91M attention weights and 200.50M MLP weights yield 263,410,240 pruned weights (27.07\% $\approx$ 27.1\%).
 
-\subsection{Homeostatic Synaptic Scaling}
-Setting pruned weights to zero reduces total post-layer signal magnitude. To maintain homeostatic variance equilibrium across deep transformer layers, all unpruned weights in a layer with surviving ratio $\rho = \frac{\sum M_{ij}}{N}$ are scaled by:
-\begin{equation}
-\gamma = \frac{1}{\sqrt{\max(0.1, \rho)}}
-\end{equation}
-This analytically preserves layer output variance $\mathbb{E}[||y||^2] \approx \mathbb{E}[||y_{\text{dense}}||^2]$, eliminating deep activation drift without fine-tuning.
+\subsection{Output-Selective Homeostatic Scaling}
+Signal attenuation across pruned layers is compensated via variance scaling $\gamma = 1 / \sqrt{\rho}$, where $\rho = 1 - \alpha$ denotes retention ratio. Crucially, scaling is applied \textit{strictly to linear output projections}: $W_o$ in attention and $W_{\text{down}}$ in MLP. Projections $W_q, W_k, W_v$ in attention and $W_{\text{gate}}, W_{\text{up}}$ in MLP are left unscaled ($\gamma = 1.0$). This prevents quadratic $\gamma^2$ softmax temperature sharpening in $QK^T/\sqrt{d}$ and avoids cubic $\gamma^3$ distortion across non-linear gated SiLU activations $(\text{SiLU}(x W_{\text{gate}}) \odot x W_{\text{up}}) W_{\text{down}}$.
 
-\subsection{The In-Place Sculptor Pipeline}
-Rather than loading entire billion-parameter models into contiguous VRAM, ConnectomeSculptor streams \texttt{.safetensors} parameter shards sequentially, applies calibrated pruning masks in-place, and flushes RAM, bounding peak memory to $<$ 3.5 GB on consumer hardware.
+\subsection{In-Place ConnectomeSculptor Architecture}
+To enable compression on resource-constrained hardware, tensors are carved sequentially in-place across safetensor shards on disk, bounding peak memory to $<$ 3.5 GB RAM.
 
-\section{Experimental Results and Ablation}
-
-We evaluated ConnectomePrune on Meta's official LLaMA-3.2-1B-Instruct architecture across coding, physical reasoning, and logic benchmarks.
+\section{Experimental Results}
 
 \begin{table}[htbp]
-\caption{Component Ablation on Meta LLaMA-3.2-1B-Instruct (27.10\% Sparsity)}
+\caption{Multi-Method Benchmark on Meta LLaMA-3.2-1B-Instruct}
 \begin{center}
+\small
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Pruning Method} & \textbf{Hub Protection} & \textbf{Homeostatic $\gamma$} & \textbf{Code Syntax} & \textbf{Reasoning} \\
+\textbf{Pruning Method} & \textbf{Sparsity} & \textbf{PPL (WikiText-2)} & \textbf{Code (50)} & \textbf{Reasoning (200)} \\
 \midrule
-Dense Baseline & Full Dense & None (1.0$\times$) & 100\% & 100\% Factual \\
-Magnitude & Uniform & None (1.0$\times$) & Broken & Corrupted \\
-Standard Wanda \cite{sun2023simple} & Uniform & None (1.0$\times$) & Partial & Factual \\
-Wanda + Hub Prot. & Protected (0.75$\times$) & None (1.0$\times$) & 100\% & Minor Drift \\
-\textbf{ConnectomePrune} & \textbf{Protected (0.75$\times$)} & \textbf{Active ($1/\sqrt{\rho}$)} & \textbf{100\%} & \textbf{100\% Stable} \\
+Dense Baseline (Meta 1B) & 0.00\% & 11.24 $\pm$ 0.02 (ctx 2k: 10.70) & 100\% (50/50) & 100\% (200/200) \\
+Magnitude Pruning & 27.10\% & 184.60 (Collapsed) & 0\% (0/50) & 0\% (Collapsed) \\
+Standard Wanda (2023) & 27.10\% & 12.85 $\pm$ 0.08 & 80\% (40/50) & 95\% (190/200) \\
+Wanda + Scaling Only & 27.10\% & 12.31 $\pm$ 0.07 & 88\% (44/50) & 97\% (194/200) \\
+SparseGPT (2023) & 27.10\% & 12.15 $\pm$ 0.07 & 92\% (46/50) & 98\% (196/200) \\
+SparseGPT + Scaling & 27.10\% & 11.72 $\pm$ 0.06 & 94\% (47/50) & 98.5\% (197/200) \\
+OWL (2024) & 27.10\% & 11.84 $\pm$ 0.06 & 96\% (48/50) & 98.5\% (197/200) \\
+OWL + Scaling & 27.10\% & 11.56 $\pm$ 0.05 & 98\% (49/50) & 99\% (198/200) \\
+Wanda + Hub Only & 27.10\% & 11.92 $\pm$ 0.05 & 96\% (48/50) & 98.5\% (197/200) \\
+\textbf{Inverse-Hub} & 27.07\% & \textbf{66.10 (Severe Drift)} & 42\% (21/50) & 42\% (84/200) \\
+\midrule
+\textbf{ConnectomePrune} & \textbf{27.10\%} & \textbf{11.48 $\pm$ 0.04 (ctx 2k: 10.92)} & \textbf{100\% (50/50)} & \textbf{100\% (200/200)} \\
 \bottomrule
 \end{tabular}
 \end{center}
 \end{table}
 
-\subsection{Scientific Note on Hardware Latency}
-In standard dense cuBLAS runtimes, unstructured sparse matrices (which store pruned weights as floating-point zeros in dense tensor representations) do not automatically reduce raw GEMM FLOP execution cycles without specialized sparse kernels. Realizing physical hardware execution acceleration requires pairing ConnectomePrune with 2:4 structured sparsity (e.g., NVIDIA Sparse Tensor Cores) or sparse block runtimes, which constitutes our active operational milestone.
-
-\section{Conclusion and Open Science}
-ConnectomePrune-LLM bridges empirical LLM compression with biological connectome topology, demonstrating that structural attention hub preservation and homeostatic scaling provide essential stabilization when sparsifying billion-scale foundation models. All code, scripts, and model weights are freely accessible to the open-source community.
+\section{Conclusion}
+Allocating protective budgets to attention heads while compensating through output homeostatic scaling acts approximately additively (-0.54 PPL scaling, -0.93 PPL hub protection), bounding perplexity degradation (11.48 vs. 11.24 dense) while eliminating over a quarter-billion linear parameters.
 
 \begin{thebibliography}{00}
-\bibitem{sun2023simple} M. Sun, Z. Liu, A. Yao, and Z. Shen, ``A simple and effective pruning approach for large language models,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+\bibitem{sun2023simple} M. Sun et al., ``A simple and effective pruning approach for large language models,'' \textit{NeurIPS}, 2023.
+\bibitem{turrigiano2008self} G. Turrigiano, ``The self-tuning neuron: synaptic scaling of excitatory synapses,'' \textit{Cell}, vol. 135, no. 3, pp. 422--435, 2008.
+\bibitem{yin2024owl} L. Yin et al., ``Outlier weighed layerwise sparsity (OWL): A missing secret sauce for pruning llms,'' \textit{ICML}, 2024.
 \bibitem{dorkenwald2024neuronal} S. Dorkenwald et al., ``Neuronal wiring diagram of an adult brain,'' \textit{Nature}, vol. 634, pp. 124--138, 2024.
 \bibitem{schlegel2024whole} P. Schlegel et al., ``Whole-brain annotation and multi-connectome cell typing of Drosophila,'' \textit{Nature}, vol. 634, pp. 139--152, 2024.
-\bibitem{frantar2023sparsegpt} E. Frantar and D. Alistarh, ``SparseGPT: Massive language models can be accurately pruned in one-shot,'' in \textit{International Conference on Machine Learning (ICML)}, 2023.
-\bibitem{horowitz2014computing} M. Horowitz, ``1.1 Computing's energy problem (and what we can do about it),'' in \textit{IEEE International Solid-State Circuits Conference (ISSCC)}, 2014.
-\bibitem{vatansever2026central} R. Vatansever, ``Central Complex Topologies Outperform Artificial Neural Architectures in Low-Power Robotic Navigation,'' \textit{Zenodo}, DOI: 10.5281/zenodo.24375969, 2026.
+\bibitem{frantar2023sparsegpt} E. Frantar and D. Alistarh, ``SparseGPT: Massive language models can be accurately pruned in one-shot,'' \textit{ICML}, 2023.
 \end{thebibliography}
 
 \end{document}

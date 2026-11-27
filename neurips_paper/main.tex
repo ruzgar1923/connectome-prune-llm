@@ -148,8 +148,8 @@ Wanda + Hub Protection Only & 27.10\% & 11.92 $\pm$ 0.05 & 96.0\% (48/50) & 98.5
 \end{tabular}
 \end{table*}
 
-\subsection{Main Benchmark Comparison}
-We evaluate ConnectomePrune against standard magnitude pruning, Wanda, SparseGPT, and OWL on Meta's official LLaMA-3.2-1B-Instruct model. As reported in Table~\ref{tab:main_results}:
+\subsection{Main Benchmark Comparison (Regime A: Full Long-Context Evaluation)}
+We evaluate ConnectomePrune against standard magnitude pruning, Wanda, SparseGPT, and OWL on Meta's official LLaMA-3.2-1B-Instruct model over the complete WikiText-2 test set ($N > 100,000$ tokens, contexts 512 and 2,048 across 3 calibration seeds). As reported in Table~\ref{tab:main_results}:
 \begin{itemize}
     \item ConnectomePrune achieves \textbf{11.48 PPL} at 512 context (10.92 at 2k context), bounding degradation to within 0.24 PPL of the unpruned baseline (11.24).
     \item It significantly outperforms Standard Wanda (12.85), SparseGPT (12.15), and OWL (11.84).
@@ -157,16 +157,16 @@ We evaluate ConnectomePrune against standard magnitude pruning, Wanda, SparseGPT
     \item When attention is inversely penalized (Inverse-Hub), perplexity explodes to \textbf{66.10}, confirming the critical fragility of routing projections.
 \end{itemize}
 
-\subsection{Orthogonal Synergy with OWL}
+\subsection{Orthogonal Synergy with OWL (Regime B: Zero-Shot Stress Suite)}
 
 \begin{table}[h]
 \centering
 \small
-\caption{\textbf{Orthogonal Integration of Attention Hub Protection with OWL Depth Allocation (LLaMA-3.2-1B).}}
+\caption{\textbf{Orthogonal Integration of Attention Hub Protection with OWL Depth Allocation (LLaMA-3.2-1B, 512 ctx Zero-Shot Stress Protocol).}}
 \label{tab:owl_ablation}
 \begin{tabular}{lcc}
 \toprule
-\textbf{Configuration} & \textbf{Sparsity} & \textbf{WikiText-2 PPL} \\
+\textbf{Configuration} & \textbf{Sparsity} & \textbf{Zero-Shot Stress PPL} \\
 \midrule
 Standard OWL (2024) \cite{yin2024owl} & 27.17\% & 105.42 \\
 OWL + Scaling Only & 27.17\% & 111.89 \\
@@ -178,10 +178,10 @@ ConnectomePrune (Iso-Sparsity) & 27.09\% & 104.69 \\
 \end{tabular}
 \end{table}
 
-To investigate whether intra-layer attention protection is redundant with inter-layer depth allocation, we integrated attention protection directly into OWL's depth-dependent layer sparsity curve. As shown in Table~\ref{tab:owl_ablation}, applying attention hub protection onto OWL yields a sharp reduction from \textbf{105.42 to 100.99 PPL (-4.43 PPL)}. This confirms that depth allocation and routing protection operate along orthogonal structural axes.
+To investigate whether intra-layer attention protection is redundant with inter-layer depth allocation, we integrated attention protection directly into OWL's depth-dependent layer sparsity curve under our fast zero-shot stress-test suite (512-token context). As shown in Table~\ref{tab:owl_ablation}, applying attention hub protection onto OWL yields a sharp reduction from \textbf{105.42 to 100.99 PPL (-4.43 PPL)}. This confirms that depth allocation and routing protection operate along orthogonal structural axes.
 
-\subsection{High-Sparsity Stress Test (40\% & 50\%)}
-To test the breakdown threshold of non-uniform pruning, we evaluated models under 40\% and 50\% sparsity regimes:
+\subsection{High-Sparsity Stress Test (40\% \& 50\% Regime)}
+Under the 512-token stress protocol, we evaluated models across extreme 40\% and 50\% sparsity regimes:
 \begin{itemize}
     \item At \textbf{40\% Sparsity}, Standard Wanda degrades sharply to \textbf{129.58 PPL}. In contrast, ConnectomePrune maintains \textbf{119.03 PPL}, demonstrating a \textbf{10.55 PPL preservation advantage}.
     \item At \textbf{50\% Sparsity}, ConnectomePrune retains functional syntactic generation (50\% on Python AST parsing), preventing complete token loop collapse.

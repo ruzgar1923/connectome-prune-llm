@@ -169,10 +169,10 @@ def build_pdf(filename):
     story.append(Spacer(1, 3))
 
     # Section IV: Table 2 OWL Ablation & Qwen
-    story.append(Paragraph("III. ORTHOGONAL OWL INTEGRATION & CROSS-MODEL GENERALIZATION", h1_style))
+    story.append(Paragraph("III. ORTHOGONAL OWL INTEGRATION (REGIME B: ZERO-SHOT STRESS SUITE)", h1_style))
     
     owl_data = [
-        [Paragraph("Configuration (LLaMA-3.2-1B)", cell_header), Paragraph("Linear Sparsity", cell_header), Paragraph("WikiText-2 PPL (512 ctx)", cell_header), Paragraph("Orthogonal Synergy", cell_header)],
+        [Paragraph("Configuration (LLaMA-3.2-1B)", cell_header), Paragraph("Linear Sparsity", cell_header), Paragraph("Zero-Shot Stress PPL (512 ctx)", cell_header), Paragraph("Orthogonal Synergy", cell_header)],
         [Paragraph("Standard OWL (ICML 2024)", cell_style), Paragraph("27.17%", cell_style), Paragraph("105.42", cell_style), Paragraph("Inter-layer depth allocation", cell_style)],
         [Paragraph("OWL + Scaling Only", cell_style), Paragraph("27.17%", cell_style), Paragraph("111.89", cell_style), Paragraph("Variance scaling alone", cell_style)],
         [Paragraph("<b>OWL + Hub Protection Only</b>", cell_bold), Paragraph("<b>27.12%</b>", cell_bold), Paragraph("<b>100.99</b>", cell_bold), Paragraph("<b>-4.43 PPL Drop (Hub Benefit)</b>", cell_bold)],

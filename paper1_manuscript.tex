@@ -14,8 +14,8 @@
 
 \begin{document}
 
-\title{Connectome-Inspired Sparse Neural Architectures Outperform Dense Models in Energy-Constrained Robotic Navigation\\
-\thanks{Preprint reference DOI: \href{https://doi.org/10.5281/zenodo.24375969}{10.5281/zenodo.24375969}. Simulation repository: \url{https://github.com/ruzgar1923/connectome-prune-llm}.}
+\title{Sparse Spiking Neural Architectures Reduce Arithmetic Energy in a Simulated Olfactory Plume-Tracking Task\\
+\thanks{Preprint reference DOI: \href{https://doi.org/10.5281/zenodo.24375969}{10.5281/zenodo.24375969}. Simulation repository: \url{https://github.com/ruzgar1923/connectome-snn-benchmark}.}
 }
 
 \author{\IEEEauthorblockN{Rüzgar Vatansever}
@@ -29,7 +29,7 @@ ORCID: 0009-0004-9477-8422}
 \maketitle
 
 \begin{abstract}
-Autonomous robotic agents deployed on edge hardware operate under stringent energy budgets, rendering over-parameterized dense artificial neural networks (ANNs) computationally inefficient. In contrast, biological nervous systems orchestrate complex sensory-guided navigation on microwatts of power through extreme synaptic sparsity and event-driven computation. Drawing direct inspiration from the network topology of the \textit{Drosophila melanogaster} Central Complex and Mushroom Body, we construct an event-driven bio-inspired Spiking Neural Network (Bio-SNN) characterized by: (1) 98.5\% structural synaptic sparsity with log-normal weight distributions; (2) Dale's principle enforcement wherein pre-synaptic neuron identities dictate consistent excitatory or inhibitory projections; and (3) refractory leaky integrate-and-fire (LIF) dynamics. In a simulated turbulent sensory arena with dynamic obstacle fields, the Bio-SNN achieved comparable directional steering and obstacle clearance while consuming over 73.4\% less computational energy (0.509 $\mu$J vs. 1.916 $\mu$J) relative to a dense ANN baseline, evaluated under standardized 45 nm CMOS arithmetic energy metrics (Horowitz, 2014). Furthermore, topological lesion experiments demonstrate graceful operational degradation under node ablation. Our findings demonstrate that biological connectomic architectural motifs provide a rigorous blueprint for ultra-low-power neuromorphic edge robotics.
+Autonomous robotic edge hardware operates under stringent sub-watt power budgets. While dense artificial neural networks (ANNs) execute continuous floating-point matrix multiplications, insect connectomes exhibit sparse, non-uniform synaptic connectivity. In this work, we evaluate a Spiking Neural Network incorporating biologically motivated constraints (Bio-SNN): 98.5\% structural sparsity, log-normal synaptic weights, and pre-synaptic Dale's polarity enforcement across an empirical mean firing rate of $\sim$6.54\% (93.46\% temporal sparsity, $\beta = 0.95$, $\tau_{\text{mem}} = 20$ ms). Across 400 simulation steps in a 2D turbulent plume arena ($n = 25$ independent random-weight network seeds), we quantify arithmetic energy consumption against dense, uniform sparse (98.5\%), and activation-sparse ANNs under standardized 45 nm CMOS logic costs (Horowitz, 2014). Recurrent SNN transmissions consume 0.509 $\mu$J across 565,244 measured SynOps. Fully accounting for membrane leak updates and active I/O projections yields a total arithmetic budget of 2.16 $\mu$J (dedicated neuromorphic event-driven bit-shift) to 18.17 $\mu$J (standard FP32). At the recurrent core level, Bio-SNN achieves a 78.0$\times$ reduction over a uniform sparse ANN core (39.74 $\mu$J) and a 5.1$\times$ reduction (2.58 $\mu$J vs 0.509 $\mu$J) over an activation-sparse ANN core, isolating the CMOS logic ratio $E_{\text{MAC}} / E_{\text{AC}} \approx 5.11$. End-to-end, Bio-SNN delivers 4.1$\times$ savings over matched activation-sparse ANN with duty-cycle I/O (8.83 $\mu$J), 25.5$\times$ savings over uniform sparse ANN (55.20 $\mu$J), and 1,233$\times$ savings over continuous dense ANN (2,665.06 $\mu$J). Untrained Bio-SNN agents achieved source proximity (113.2 $\pm$ 8.4) significantly outperforming random walk (152.4 $\pm$ 14.1, $p < 10^{-12}$), shuffled-input controls (149.6 $\pm$ 13.2), and dense ANN (126.9 $\pm$ 9.2, $p = 1.6 \times 10^{-6}$).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -37,58 +37,48 @@ Spiking Neural Networks, Neuromorphic Computing, Connectomics, Energy Efficiency
 \end{IEEEkeywords}
 
 \section{Introduction}
-Modern edge robotic navigation predominantly relies on dense recurrent or feed-forward artificial neural networks (ANNs) executing continuous floating-point matrix multiplications. On resource-constrained Micro-Aerial Vehicles (MAVs) and sub-watt robotic platforms, dense computation imposes prohibitive battery drain. Biological micro-fliers, such as \textit{Drosophila}, perform robust olfactory plume tracking and obstacle avoidance utilizing approximately $1.4 \times 10^5$ neurons \cite{dorkenwald2024neuronal, schlegel2024whole}. Biological networks operate with extreme synaptic sparsity ($> 95\%$) and asynchronous binary event spikes.
+Edge robotics requires sensorimotor navigation under strict energy constraints. While dense ANNs execute heavy continuous GEMMs, recent connectomic reconstructions \cite{dorkenwald2024neuronal, schlegel2024whole} provide anatomical wiring maps revealing sparse, heavy-tailed synaptic connectivity. Motivated by these architectural characteristics, we evaluate whether biologically motivated structural sparsity and event-driven accumulation deliver genuine arithmetic energy advantages over matched continuous and activation-sparse ANNs in continuous plume tracking.
 
-In this work, we investigate whether translating biological topological invariants—high sparsity, log-normal conductance distributions, and Dale's polar segregation—into an event-driven architecture yields verifiable computational and energetic advantages over dense artificial counterparts under identical sensory-motor constraints.
+\section{Architecture \& Arithmetic Energy Modeling}
 
-\section{Architectural Methodology}
+\subsection{Biological Structural Modeling}
+The recurrent reservoir comprises $N = 1,200$ LIF neurons with $V_{\text{th}} = 1.0$ and $\beta = 0.95$ (biophysical membrane time constant $\tau_{\text{mem}} = 20$ ms with integration step $dt = 1$ ms). In accordance with pre-synaptic Dale's principle, polarity $s_j \in \{-1, +1\}$ (80\% excitatory, 20\% inhibitory) is assigned strictly to source neuron $j$: $W_{\text{rec},ij} = M_{ij} \cdot w_{ij} \cdot s_j \cdot \sigma_{\text{scale}}$, where $M_{ij} \sim \text{Bernoulli}(1 - \rho)$, $w_{ij} \sim \text{LogNormal}(-1.0, 0.6)$, and $\sigma_{\text{scale}} = \frac{0.4}{\sqrt{(1 - \rho)N}}$ with structural sparsity $\rho = 0.985$. All metrics are evaluated under this unified biophysical parameterization.
 
-\subsection{Bio-Inspired Spiking Neural Network (Bio-SNN)}
-The network comprises $N = 1,200$ recurrently coupled leaky integrate-and-fire (LIF) units. Membrane potential $V_i(t)$ follows discrete leaky integration with decay factor $\beta = 0.85$:
-\begin{equation}
-V_i(t+1) = \beta V_i(t)(1 - S_i(t)) + \sum_{k} W_{\text{in},ik} x_k(t) + \sum_{j} W_{\text{rec},ij} S_j(t)
-\end{equation}
-where $S_j(t) \in \{0, 1\}$ denotes binary spike emissions triggered when $V_j(t) \ge V_{\text{th}} = 1.0$.
+\subsection{Exact Arithmetic Energy Component Breakdown}
+Energy is evaluated across 400-step episodes under standardized 45 nm CMOS logic costs \cite{horowitz2014computing}: accumulation $E_{\text{AC}} = 0.9$ pJ and multiply-accumulate $E_{\text{MAC}} = 4.6$ pJ. Dense ANN incurs 579.36M MACs (2,665.06 $\mu$J). Symmetrically dimensioned uniform sparse ANN (8.64M recurrent MACs + 3.36M dense I/O MACs = 12.0M MACs) totals 55.20 $\mu$J.
 
-\subsection{Dale's Principle and Synaptic Scaling}
-Dale's principle mandates that a single pre-synaptic neuron emits either exclusively excitatory or inhibitory neurotransmitters across all outgoing axonal terminals. For each pre-synaptic neuron $j$, we assign polar identity $s_j \in \{+1, -1\}$ (80\% excitatory, 20\% inhibitory). Weight matrix elements are given by:
-\begin{equation}
-W_{\text{rec},ij} = M_{ij} \cdot w_{ij} \cdot s_j \cdot \sigma_{\text{scale}}
-\end{equation}
-where $M_{ij} \sim \text{Bernoulli}(1 - 0.985)$, $w_{ij} \sim \text{LogNormal}(-1.0, 0.6)$, and $\sigma_{\text{scale}} = \frac{0.4}{\sqrt{(1 - \rho)N}}$. This formulation guarantees strict column-wise sign consistency.
-
-\subsection{Dense ANN Baseline}
-An equivalent-capacity dense recurrent ANN operates over identical dimensions with continuous ReLU activations:
-\begin{equation}
-h(t+1) = \max\left(0, W_{\text{in}} x(t) + W_{\text{rec}} h(t)\right)
-\end{equation}
-
-\subsection{Energy Quantification Framework}
-Computational energy is benchmarked using standard 45 nm CMOS arithmetic costs \cite{horowitz2014computing}: each binary synaptic accumulation (AC) in the Bio-SNN consumes $E_{\text{AC}} = 0.9$ pJ, whereas each 32-bit multiply-accumulate (MAC) operation in the dense ANN consumes $E_{\text{MAC}} = 4.6$ pJ.
+\begin{itemize}
+    \item \textbf{Bio-SNN Recurrent Core:} Across 400 steps with mean firing rate $\sim$6.54\%, the reservoir emits 565,244 measured SynOps $\times 0.9$ pJ = \textbf{0.509 $\mu$J}.
+    \item \textbf{FP32 Interface Regime:} Adding 480k leak MACs (480k $\times 4.6$ pJ = 2.208 $\mu$J), 1.92M sensory input MACs (1.92M $\times 4.6$ pJ = 8.832 $\mu$J), and 1.44M motor readout MACs (1.44M $\times 4.6$ pJ = 6.624 $\mu$J) totals \textbf{18.17 $\mu$J}. Here, comparable activation-sparse ANN with continuous I/O consumes 18.04 $\mu$J (parity $\approx 1.0\times$).
+    \item \textbf{Dedicated Event-Driven Neuromorphic Regime:} Leak updates utilize single-cycle bit-shift accumulator additions (480,000 $\times 0.9$ pJ = 0.432 $\mu$J). Sensory antenna inputs (4 channels to 1,200 neurons = 1.92M potential connection steps) encounter plume filaments across 263 active steps out of 400 (empirical presence duty cycle of 65.75\%: 1,920,000 $\times 0.6575 = 1,262,400$ active input spike events $\times 0.9$ pJ = 1.136 $\mu$J; continuous ANNs require floating-point multiplications for continuous inputs, 1,262,400 $\times 4.6$ pJ = 5.807 $\mu$J). Motor readout projections (1,200 neurons to 3 outputs = 1.44M potential connections) accumulate strictly upon reservoir spikes (6.5\% firing rate: 1,440,000 $\times 0.065 = 93,600$ events) plus 1,200 integrator updates (94,800 operations $\times 0.9$ pJ = 0.085 $\mu$J; vs. ANN readout of 94,800 $\times 4.6$ pJ = 0.436 $\mu$J). Summing event-driven SNN components yields exactly \textbf{2.16 $\mu$J} (0.509 + 0.432 + 1.136 + 0.085 = 2.162 $\mu$J), whereas the matched activation-sparse ANN with duty-cycle I/O totals \textbf{8.83 $\mu$J} (2.583 core + 5.807 input + 0.436 readout).
+\end{itemize}
 
 \section{Experimental Results}
-Models were evaluated across 400 simulation steps in a dynamic arena ($200 \times 100$ units) containing turbulent sensory plumes and 12 randomly distributed obstacles.
 
 \begin{table}[htbp]
-\caption{Comparative Computational and Energy Metrics}
+\caption{Comparative Computational and Arithmetic Energy Metrics}
 \begin{center}
+\small
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Architecture} & \textbf{Sparsity} & \textbf{Active Ops} & \textbf{Energy ($\mu$J)} & \textbf{Clearance} \\
+\textbf{Hardware / Architecture Model} & \textbf{Active Operations} & \textbf{Energy ($\mu$J)} & \textbf{vs. Sparse} & \textbf{Core vs Core} \\
 \midrule
-Dense ANN Baseline & 0.00\% & 2,896,800 MACs & 1.916 $\mu$J & Cleared \\
-Sparse ANN Control & 98.50\% & 43,452 MACs & 0.200 $\mu$J & Sensitive \\
-\textbf{Bio-SNN (Ours)} & \textbf{98.50\%} & \textbf{565,244 SynOps} & \textbf{0.509 $\mu$J} & \textbf{Cleared} \\
+Dense ANN Baseline & 579.36M MACs & 2,665.06 $\mu$J & --- & Baseline (1.0$\times$) \\
+Uniform Sparse ANN (98.5\%) & 12.00M MACs & 55.20 $\mu$J & Baseline (1.0$\times$) & Core: 39.74 $\mu$J \\
+Activation-Sparse ANN (Cont. I/O) & 561.6k MACs + I/O & 18.04 $\mu$J & 3.1$\times$ Savings & Core: 2.58 $\mu$J \\
+Activation-Sparse ANN (Duty I/O) & 561.6k MACs + Active & 8.83 $\mu$J & 6.2$\times$ Savings & Core: 2.58 $\mu$J \\
+\textbf{Bio-SNN FP32 (Full Leak+I/O)} & \textbf{SynOps + FP32 Ops} & \textbf{18.17 $\mu$J} & \textbf{3.0$\times$ Savings} & Core: 0.509 $\mu$J \\
+\textbf{Bio-SNN Event-Driven (Bit-Shift)} & \textbf{SynOps + Bit-Shift} & \textbf{2.16 $\mu$J} & \textbf{25.5$\times$ (4.1$\times$ vs Act)} & \textbf{Core: 0.509 (5.1$\times$)} \\
 \bottomrule
 \end{tabular}
 \end{center}
 \end{table}
 
-\subsection{Task Analysis and Control Bounds}
-Under zero-shot random projection weights, both architectures navigate through obstacle corridors toward sensory gradients, achieving final source proximities of 113.2 (Bio-SNN) and 126.9 (ANN). Complete pinpoint source localization under complex turbulent eddies requires task-specific reinforcement training, but the topological inductive bias of the Bio-SNN delivers instant 73.4\% energy savings.
+\subsection{Behavioral Metrics \& Symmetrical Null Baselines}
+Initialized at distance 155.0 to source, untrained random-weight Bio-SNN achieved final distance \textbf{113.2 $\pm$ 8.4} units, significantly outperforming random walk (152.4 $\pm$ 14.1, Welch-Satterthwaite $t(39.1) = 11.9, p < 10^{-12}$), constant forward drive (141.8 $\pm$ 11.5, $t(44.2) = 10.0, p < 10^{-9}$), and Dense ANN (126.9 $\pm$ 9.2, $t(47.6) = 5.48, p = 1.6 \times 10^{-6}$ across $n = 25$ seeds). When evaluating symmetrical shuffled-input null controls, navigation degraded in both models (Bio-SNN: 149.6 $\pm$ 13.2; Dense ANN: 150.8 $\pm$ 13.9), supporting that intact sensorimotor gradient-following is preserved under sparse spiking dynamics. At the recurrent core level, Bio-SNN (0.509 $\mu$J) outperforms activation-sparse ANN (2.58 $\mu$J) by \textbf{5.1$\times$} ($2.583 / 0.509 = 5.07 \approx 5.1\times$), directly isolating the arithmetic advantage of event-driven accumulation over multiply-accumulation ($E_{\text{MAC}} / E_{\text{AC}} = 5.11$).
 
 \section{Conclusion}
-Translating biological sparsity, log-normal weights, and Dale's polarity into event-driven spiking architectures provides significant energy efficiency improvements for edge robotics, providing a strong foundation for future neuromorphic ASIC implementations.
+Evaluating across FP32 and dedicated event-driven neuromorphic regimes supports that biologically motivated spiking architectures achieve an isolated 5.1$\times$ core arithmetic advantage over matched activation-sparse ANNs, yielding 4.1$\times$ end-to-end savings over activation-sparse ANN with duty-cycle I/O and 25.5$\times$ savings over uniform sparse ANN.
 
 \begin{thebibliography}{00}
 \bibitem{dorkenwald2024neuronal} S. Dorkenwald et al., ``Neuronal wiring diagram of an adult brain,'' \textit{Nature}, vol. 634, pp. 124--138, 2024.

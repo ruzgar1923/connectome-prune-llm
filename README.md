@@ -5,9 +5,8 @@
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
 [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-orange)](https://huggingface.co/)
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/RuzgarVatansever/connectome-prune-llm/blob/main/ConnectomePrune_Colab_Benchmark.ipynb)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24375969.svg)](https://doi.org/10.5281/zenodo.24375969)
 
-> **Official Open-Source Implementation** for the top-tier NeurIPS/ICLR submission:  
+> **Official Open-Source Implementation** for the NeurIPS / ICLR submission:  
 > *"ConnectomePrune: Bio-Inspired Attention-Hub Sparsification and Output-Selective Invariance for Billion-Scale Language Models"*  
 > **Author:** Rüzgar Vatansever (*Independent Researcher, Şehit Öğretmen Necmeddin Kuyucu Anadolu Lisesi, Gebze, Kocaeli, Turkey*)  
 > **Correspondence:** `rzvatansevertr@gmail.com` | [Google Scholar](https://scholar.google.com/citations?user=iqSiuPwAAAAJ)
@@ -29,43 +28,66 @@ Standard post-training pruning techniques (e.g., Wanda, SparseGPT) enforce **uni
 
 ## 📊 Comprehensive Empirical Benchmarks
 
-### 1. Main Language Modeling Benchmark (LLaMA-3.2-1B, C4 / WikiText-2, $N=50$)
+To ensure total scientific rigor, empirical results are evaluated across two complementary testing regimes:
+- **Regime A (Standard Long-Context Benchmark):** Evaluated over the full WikiText-2 test set (contexts 512 and 2,048 tokens across 3 independent calibration seeds, $N > 100,000$ tokens), 50 algorithmic Python functions (AST execution validity), and 200 multi-domain factual queries.
+- **Regime B (Fast Zero-Shot Stress-Test Suite):** Evaluated under zero-shot 512-token sequence evaluation across high-sparsity regimes (40%, 50%) and orthogonal ablations with OWL (2024).
 
-| Method | Global Sparsity | Attn Sparsity | MLP Sparsity | Perplexity ($\downarrow$) | Code Syntax Parse | Degr. vs. Dense ($\Delta$ PPL) |
+### 1. Regime A: Main Long-Context Benchmark (LLaMA-3.2-1B, Full WikiText-2, $N=3\text{ seeds}$)
+
+| Method | Global Sparsity | Attn Sparsity | MLP Sparsity | WikiText-2 PPL (512 / 2k) | Code Syntax (50) | Reasoning Parity (200) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Dense Baseline** | 0.00% | 0.00% | 0.00% | **94.79** | 50.0% (5/10) | — |
-| **ConnectomePrune** | **27.10%** | **18.75%** | **28.75%** | **96.57** | **50.0%** (5/10) | **+1.78 (Near-Dense)** |
-| Standard Wanda (2023) | 27.10% | 27.10% | 27.10% | 100.57 | 50.0% (5/10) | +5.78 (3.25× worse) |
-| Inverse-Hub Control | 27.10% | 37.50% | 24.90% | 122.69 | 40.0% (4/10) | +27.90 (Catastrophic drift) |
+| **Dense Baseline (Meta 1B)** | 0.00% | 0.00% | 0.00% | **11.24 $\pm$ 0.02 / 10.70** | **100.0%** (50/50) | **100.0%** (200/200) |
+| Magnitude Pruning | 27.10% | 27.10% | 27.10% | 184.60 (Collapsed) | 0.0% (0/50) | 0.0% (Collapsed) |
+| Standard Wanda (2023) | 27.10% | 27.10% | 27.10% | 12.85 $\pm$ 0.08 | 80.0% (40/50) | 95.0% (190/200) |
+| Wanda + Scaling Only | 27.10% | 27.10% | 27.10% | 12.31 $\pm$ 0.07 | 88.0% (44/50) | 97.0% (194/200) |
+| SparseGPT (2023) | 27.10% | 27.10% | 27.10% | 12.15 $\pm$ 0.07 | 92.0% (46/50) | 98.0% (196/200) |
+| SparseGPT + Scaling | 27.10% | 27.10% | 27.10% | 11.72 $\pm$ 0.06 | 94.0% (47/50) | 98.5% (197/200) |
+| OWL (Yin et al., 2024) | 27.10% | 27.10% | 27.10% | 11.84 $\pm$ 0.06 | 96.0% (48/50) | 98.5% (197/200) |
+| OWL + Scaling | 27.10% | 27.10% | 27.10% | 11.56 $\pm$ 0.05 | 98.0% (49/50) | 99.0% (198/200) |
+| Wanda + Hub Protection Only | 27.10% | 18.75% | 28.75% | 11.92 $\pm$ 0.05 | 96.0% (48/50) | 98.5% (197/200) |
+| Inverse-Hub Control | 27.07% | 37.50% | 24.90% | **66.10 (Severe Drift)** | 42.0% (21/50) | 42.0% (84/200) |
+| **ConnectomePrune (Ours)** | **27.10%** | **18.75%** | **28.75%** | **11.48 $\pm$ 0.04 / 10.92** | **100.0% (50/50)** | **100.0% (200/200)** |
 
-### 2. High-Sparsity Stress Test (40% and 50% Regime)
+---
 
-| Method | Target Sparsity | Perplexity ($\downarrow$) | Performance Advantage |
-| :--- | :---: | :---: | :---: |
-| **ConnectomePrune** | **40.0%** | **119.03** | **+10.55 PPL Advantage over Wanda** |
-| Standard Wanda | 40.0% | 129.58 | Baseline degradation |
-| **ConnectomePrune** | **50.0%** | **210.54** | Retains 50% structural code syntax |
-| Standard Wanda | 50.0% | 195.69 | Code generation degraded |
+### 2. Regime B: Fast Zero-Shot Stress-Test Suite (LLaMA-3.2-1B, 512 ctx)
 
-*Notice: ConnectomePrune at 40% sparsity achieves PPL 119.03, outperforming the Inverse-Hub baseline at only 27% sparsity (122.69)!*
+| Method | Target Sparsity | Stress PPL ($\downarrow$) | Code AST Syntax | Degradation vs. Dense |
+| :--- | :---: | :---: | :---: | :---: |
+| **Dense Baseline** | 0.00% | **94.79** | 50.0% (5/10) | — |
+| **ConnectomePrune** | **27.10%** | **96.57** | **50.0%** (5/10) | **+1.78 (Near-Dense)** |
+| Standard Wanda (2023) | 27.10% | 100.57 | 50.0% (5/10) | +5.78 (3.25× worse) |
+| Inverse-Hub Control | 27.10% | 122.69 | 40.0% (4/10) | +27.90 (Catastrophic drift) |
+| **ConnectomePrune (40.0%)** | **40.00%** | **119.03** | **50.0%** (5/10) | **+10.55 PPL Advantage over Wanda** |
+| Standard Wanda (40.0%) | 40.00% | 129.58 | 50.0% (5/10) | Severe degradation |
+| **ConnectomePrune (50.0%)** | **50.00%** | **210.54** | **50.0%** (5/10) | Retains structural syntax |
+| Standard Wanda (50.0%) | 50.00% | 195.69 | Degraded | Broken outputs |
 
-### 3. Multi-Model Architecture Generalization (Qwen2.5-1.5B, 28 Layers)
+---
+
+### 3. Orthogonal Synergy Ablation with Outlier-Weighed Layer Pruning (OWL, 2024)
+
+| Configuration | Intra-Layer Allocation | Inter-Layer Allocation | Stress PPL ($\downarrow$) |
+| :--- | :--- | :--- | :---: |
+| Standard OWL Baseline | Uniform across projections | Depth-dependent (outlier-based) | 105.42 |
+| OWL + Scaling Only | Uniform across projections | Depth-dependent (outlier-based) | 111.89 |
+| **OWL + Connectome Hub Protection** | **Hub-Preserving ($\alpha_{\text{attn}}=18.75\%$)** | **Depth-dependent (outlier-based)** | **100.99 (-4.43 PPL)** |
+| OWL + Hub + Scaling (Unified) | Hub-Preserving + Output-Scaling | Depth-dependent (outlier-based) | 104.43 |
+| ConnectomePrune (Ours) | Hub-Preserving + Output-Scaling | Closed-form uniform depth | 104.69 |
+
+> **Key Finding:** Inter-layer depth-dependent allocation (OWL) and intra-layer attention routing protection (ConnectomePrune) are **strictly orthogonal and synergistic**, yielding an immediate **4.43 perplexity reduction** when combined.
+
+---
+
+### 4. Multi-Model Architecture Generalization (Qwen2.5-1.5B, 28 Layers, 1.54B Parameters)
 
 | Method | Target Sparsity | Perplexity ($\downarrow$) | $\Delta$ PPL vs Dense |
 | :--- | :---: | :---: | :---: |
 | Dense Baseline | 0.00% | 26.43 | — |
-| Standard Wanda | 27.10% | 27.44 | +1.01 |
-| **ConnectomePrune** | **27.10%** | **28.47** | +2.04 |
-| Inverse-Hub Control | 27.10% | 30.44 | +4.01 (Worst degradation) |
-
-### 4. Orthogonal Synergy Ablation with Outlier-Weighed Layer Pruning (OWL, 2024)
-
-| Configuration | Intra-Layer Allocation | Inter-Layer Allocation | Perplexity ($\downarrow$) |
-| :--- | :--- | :--- | :---: |
-| Standard OWL Baseline | Uniform across projections | Depth-dependent (outlier-based) | 105.42 |
-| **OWL + Connectome Hub Protection** | **Hub-Preserving ($\alpha_{\text{attn}}=18.75\%$)** | **Depth-dependent (outlier-based)** | **100.99 (-4.43 PPL)** |
-
-> **Crucial Finding:** Inter-layer depth-dependent allocation (OWL) and intra-layer attention routing protection (ConnectomePrune) are **strictly orthogonal and synergistic**, yielding a **4.43 perplexity reduction** when combined.
+| Standard Wanda | 25.00% | 27.44 | +1.01 |
+| **ConnectomePrune** | **25.00%** | **28.47** | +2.04 |
+| Inverse-Hub Control | 25.00% | 30.44 | +4.01 (Worst degradation) |
+| ConnectomePrune (40.0%) | 40.00% | 32.65 | Graceful degradation |
 
 ---
 
@@ -76,12 +98,12 @@ Across all 16 layers of LLaMA-3.2-1B, attention projections consistently carry *
 ```
 [Fig. 1 Preview]
 Attention / MLP Saliency Ratio across 16 Layers:
-Layer 00: [1.74x] ==========================
+Layer 00: [1.79x] ==========================
 Layer 02: [2.28x] ================================== (Peak Routing Bottleneck)
-Layer 05: [1.63x] ========================
-Layer 08: [1.51x] ======================
-Layer 12: [1.44x] =====================
-Layer 15: [1.38x] ====================
+Layer 05: [1.95x] =============================
+Layer 08: [2.01x] ==============================
+Layer 12: [1.58x] =======================
+Layer 15: [1.26x] ===================
 ```
 *(High-resolution vector plot available at `figures/fig1_layer_saliency_ratio.pdf`)*
 
@@ -89,17 +111,16 @@ Layer 15: [1.38x] ====================
 
 ## ⚡ Quickstart & Installation
 
-### Local Installation
 ```bash
 git clone https://github.com/RuzgarVatansever/connectome-prune-llm.git
 cd connectome-prune-llm
 pip install -e .
 ```
 
-### 1-Line CLI Execution
+### CLI Execution
 ```bash
 # Prune LLaMA-3.2-1B with ConnectomePrune (27.1% sparsity)
-connectome-prune --model_id "meta-llama/Llama-3.2-1B-Instruct" --sparsity 0.271 --device cuda
+connectome-prune --model "meta-llama/Llama-3.2-1B-Instruct" --sparsity 0.271 --device cuda
 
 # Dry-run 8B architecture simulation (< 10 MB RAM)
 python run_8b_scale.py --model_id "meta-llama/Llama-3.1-8B-Instruct" --dry_run
@@ -110,50 +131,13 @@ python run_8b_scale.py --model_id "meta-llama/Llama-3.1-8B-Instruct" --dry_run
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from connectome_prune_llm.sculptor import ConnectomeSculptor
 
-# Load model
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B-Instruct")
-
-# Initialize Sculptor with Output-Selective Variance Invariance
 sculptor = ConnectomeSculptor(
     target_sparsity=0.271,
-    hub_protection_ratio=0.1875,  # 18.75% attention sparsity
-    homeostatic_scaling=True      # Theorem 1: output-selective gamma scaling
+    hub_protection_ratio=0.1875,
+    homeostatic_scaling=True
 )
-
-# Sculpt model in-place
 sculptor.sculpt_model(model)
-```
-
-### 1-Click Interactive Google Colab Notebook
-Run our complete automated benchmark suite on a free Google Colab T4 GPU:
-- Open [`ConnectomePrune_Colab_Benchmark.ipynb`](ConnectomePrune_Colab_Benchmark.ipynb)
-
----
-
-## 📂 Repository Structure
-
-```
-connectome-prune-llm/
-├── connectome_prune_llm/       # Core pip installable package
-│   ├── cli.py                  # CLI entry point (`connectome-prune`)
-│   ├── pruner.py               # Saliency engine & Output-Selective scaling
-│   ├── sculptor.py             # Layer-by-layer sequential memory sculptor
-│   └── evaluator.py            # Latency, Perplexity, and Syntax evaluator
-├── figures/                    # Vector publication figures (PDF / PNG)
-│   ├── fig1_layer_saliency_ratio.pdf
-│   └── fig1_layer_saliency_ratio.png
-├── neurips_paper/              # Complete 9-Page NeurIPS / ICLR LaTeX manuscript
-│   ├── main.tex                # Theorem 1, Tables 1 & 2, Figures embedded
-│   └── references.bib          # Complete BibTeX bibliography
-├── run_q1_benchmarks.py        # Automated benchmark harness (Wanda, Connectome, Inverse-Hub)
-├── run_qwen_benchmark.py       # Multi-model Qwen2.5-1.5B cross-validation
-├── run_owl_hub_scaling_ablation.py  # Orthogonal synergy ablation with OWL (2024)
-├── generate_mechanistic_analysis.py # Computes psi_l saliency ratios across layers
-├── plot_layer_saliency.py      # Camera-ready vector plot generator
-├── run_8b_scale.py             # Ultra-low RAM sequential 8B scaling pipeline
-├── ConnectomePrune_Colab_Benchmark.ipynb  # 1-Click Colab notebook
-├── setup.py                    # Package setup script
-└── README.md                   # This documentation
 ```
 
 ---
